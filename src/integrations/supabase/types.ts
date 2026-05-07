@@ -14,7 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      inquiries: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          message: string
+          quantity_requested: number | null
+          seller_id: string
+          status: Database["public"]["Enums"]["inquiry_status"]
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          message: string
+          quantity_requested?: number | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          message?: string
+          quantity_requested?: number | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          is_free: boolean
+          location: string
+          price_per_unit: number | null
+          quantity: number
+          status: Database["public"]["Enums"]["listing_status"]
+          title: string
+          unit: Database["public"]["Enums"]["unit_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          is_free?: boolean
+          location: string
+          price_per_unit?: number | null
+          quantity: number
+          status?: Database["public"]["Enums"]["listing_status"]
+          title: string
+          unit: Database["public"]["Enums"]["unit_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["material_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_free?: boolean
+          location?: string
+          price_per_unit?: number | null
+          quantity?: number
+          status?: Database["public"]["Enums"]["listing_status"]
+          title?: string
+          unit?: Database["public"]["Enums"]["unit_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          company_name: string
+          contact_name: string | null
+          created_at: string
+          id: string
+          industry: string | null
+          location: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_name: string
+          contact_name?: string | null
+          created_at?: string
+          id: string
+          industry?: string | null
+          location?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_name?: string
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          location?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +156,28 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      inquiry_status: "pending" | "accepted" | "declined" | "completed"
+      listing_status: "available" | "reserved" | "sold" | "archived"
+      material_category:
+        | "plastics"
+        | "metals"
+        | "textiles"
+        | "wood"
+        | "paper"
+        | "glass"
+        | "chemicals"
+        | "organic"
+        | "construction"
+        | "electronics"
+        | "rubber"
+        | "other"
+      unit_type:
+        | "kg"
+        | "tonnes"
+        | "liters"
+        | "cubic_meters"
+        | "units"
+        | "pallets"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +304,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      inquiry_status: ["pending", "accepted", "declined", "completed"],
+      listing_status: ["available", "reserved", "sold", "archived"],
+      material_category: [
+        "plastics",
+        "metals",
+        "textiles",
+        "wood",
+        "paper",
+        "glass",
+        "chemicals",
+        "organic",
+        "construction",
+        "electronics",
+        "rubber",
+        "other",
+      ],
+      unit_type: ["kg", "tonnes", "liters", "cubic_meters", "units", "pallets"],
+    },
   },
 } as const
