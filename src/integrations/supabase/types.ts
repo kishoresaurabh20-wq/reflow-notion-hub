@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      buyer_needs: {
+        Row: {
+          categories: Database["public"]["Enums"]["material_category"][]
+          created_at: string
+          id: string
+          locations: string[]
+          max_quantity: number | null
+          min_quantity: number | null
+          notes: string | null
+          unit: Database["public"]["Enums"]["unit_type"] | null
+          updated_at: string
+          user_id: string
+          verified: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          categories?: Database["public"]["Enums"]["material_category"][]
+          created_at?: string
+          id?: string
+          locations?: string[]
+          max_quantity?: number | null
+          min_quantity?: number | null
+          notes?: string | null
+          unit?: Database["public"]["Enums"]["unit_type"] | null
+          updated_at?: string
+          user_id: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          categories?: Database["public"]["Enums"]["material_category"][]
+          created_at?: string
+          id?: string
+          locations?: string[]
+          max_quantity?: number | null
+          min_quantity?: number | null
+          notes?: string | null
+          unit?: Database["public"]["Enums"]["unit_type"] | null
+          updated_at?: string
+          user_id?: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
       inquiries: {
         Row: {
           buyer_id: string
@@ -58,11 +106,59 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          deal_value: number
+          fee_amount: number
+          fee_pct: number
+          id: string
+          match_id: string
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          deal_value: number
+          fee_amount: number
+          fee_pct?: number
+          id?: string
+          match_id: string
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          deal_value?: number
+          fee_amount?: number
+          fee_pct?: number
+          id?: string
+          match_id?: string
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: true
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           category: Database["public"]["Enums"]["material_category"]
           created_at: string
           description: string
+          expires_at: string
           id: string
           image_url: string | null
           is_free: boolean
@@ -79,6 +175,7 @@ export type Database = {
           category: Database["public"]["Enums"]["material_category"]
           created_at?: string
           description: string
+          expires_at?: string
           id?: string
           image_url?: string | null
           is_free?: boolean
@@ -95,6 +192,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["material_category"]
           created_at?: string
           description?: string
+          expires_at?: string
           id?: string
           image_url?: string | null
           is_free?: boolean
@@ -108,6 +206,60 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      matches: {
+        Row: {
+          buyer_id: string
+          buyer_need_id: string | null
+          created_at: string
+          deal_value: number | null
+          id: string
+          listing_id: string
+          notes: string | null
+          seller_id: string
+          status: Database["public"]["Enums"]["match_status"]
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          buyer_need_id?: string | null
+          created_at?: string
+          deal_value?: number | null
+          id?: string
+          listing_id: string
+          notes?: string | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["match_status"]
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          buyer_need_id?: string | null
+          created_at?: string
+          deal_value?: number | null
+          id?: string
+          listing_id?: string
+          notes?: string | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["match_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_buyer_need_id_fkey"
+            columns: ["buyer_need_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_needs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -148,16 +300,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "user"
       inquiry_status: "pending" | "accepted" | "declined" | "completed"
       listing_status: "available" | "reserved" | "sold" | "archived"
+      match_status:
+        | "suggested"
+        | "contacted"
+        | "in_talks"
+        | "closed_won"
+        | "closed_lost"
       material_category:
         | "plastics"
         | "metals"
@@ -305,8 +491,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
       inquiry_status: ["pending", "accepted", "declined", "completed"],
       listing_status: ["available", "reserved", "sold", "archived"],
+      match_status: [
+        "suggested",
+        "contacted",
+        "in_talks",
+        "closed_won",
+        "closed_lost",
+      ],
       material_category: [
         "plastics",
         "metals",
