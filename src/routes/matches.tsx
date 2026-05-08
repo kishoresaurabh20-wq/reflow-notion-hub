@@ -50,8 +50,7 @@ function MatchesPage() {
   useEffect(() => { if (user) reload(); }, [user]);
 
   const advance = async (id: string, status: string, deal_value?: number) => {
-    const patch: Record<string, unknown> = { status };
-    if (deal_value !== undefined) patch.deal_value = deal_value;
+    const patch = { status, ...(deal_value !== undefined ? { deal_value } : {}) } as never;
     const { error } = await supabase.from("matches").update(patch).eq("id", id);
     if (error) toast.error(error.message); else { toast.success("Updated"); reload(); }
   };
