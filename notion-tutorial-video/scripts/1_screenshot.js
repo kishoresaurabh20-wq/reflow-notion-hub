@@ -11,6 +11,7 @@ const PAGES = [
     title: 'Founder Dashboard',
     url: 'https://www.notion.so/Founder-Dashboard-35160c58b29b81d3b3c7f2abb3d1ced1',
     waitFor: 3000,
+    requiresLogin: true,
   },
   {
     id: 'production_calendar',
@@ -77,17 +78,51 @@ const PAGES = [
   },
 ];
 
+async function loginToNotion(page) {
+  const email = process.env.NOTION_EMAIL;
+  const password = process.env.NOTION_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error(
+      'NOTION_EMAIL and NOTION_PASSWORD must be set in .env to capture private pages'
+    );
+  }
+
+  console.log('   🔐 Logging into Notion...');
+  await page.goto('https://www.notion.so/login', { waitUntil: 'networkidle' });
+
+  // Enter email
+  await page.fill('input[type="email"]', email);
+  await page.click('button[type="submit"]');
+  await page.waitForTimeout(1500);
+
+  // Enter password (shown after email step)
+  await page.fill('input[type="password"]', password);
+  await page.click('button[type="submit"]');
+
+  // Wait for redirect to workspace
+  await page.waitForURL('**/notion.so/**', { timeout: 15000 });
+  await page.waitForTimeout(2000);
+  console.log('   ✅ Logged in');
+}
+
 async function captureScreenshots() {
   const outputDir = path.join(__dirname, '../assets/screenshots');
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const browser = await chromium.launch({ headless: true }); // public pages — no login needed
+  const hasPrivatePages = PAGES.some(p => p.requiresLogin);
+
+  const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
   });
   const page = await context.newPage();
 
-  console.log('🚀 Starting screenshot capture (public Notion site)...\n');
+  if (hasPrivatePages) {
+    await loginToNotion(page);
+  }
+
+  console.log('🚀 Starting screenshot capture...\n');
 
   for (const screen of PAGES) {
     console.log(`📸 Capturing: ${screen.title}`);
