@@ -1,0 +1,7 @@
+node_modules/
+.env
+assets/screenshots/
+assets/audio/
+assets/segments/
+assets/narration_script.json
+output/
